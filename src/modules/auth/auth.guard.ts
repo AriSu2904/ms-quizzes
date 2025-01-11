@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import { CanActivate, ExecutionContext, HttpException, Injectable } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { Observable } from "rxjs";
 
@@ -13,7 +13,7 @@ export class JwtAuthGuard implements CanActivate {
     const token = request.headers['authorization']?.split(' ')[1];
 
     if (!token) {
-      throw new Error('Invalid token pattern');
+      throw new HttpException('Unauthorized', 401);
     }
 
     try {
@@ -21,7 +21,7 @@ export class JwtAuthGuard implements CanActivate {
       request.user = payload;
       return true;
     } catch (e) {
-      throw new Error('Unauthorized');
+      throw new HttpException('Unauthorized', 401);
     }
   }
 }
