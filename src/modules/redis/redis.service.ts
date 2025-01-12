@@ -12,7 +12,7 @@ export class RedisService {
         log(`Fetching ${name} from redis`);
 
         const data = await this.cacheManager.get(name) as any[] | null;
-        log(`Success fetch data ${name} from redis`);
+        log(`Success fetch data ${name} from redis with length ${data?.length}`);
         return data;
     }
 

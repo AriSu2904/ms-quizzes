@@ -25,7 +25,7 @@ export class LetterService {
 
             let data = await this.cache.getCache(`${name}-letters-${level}`);
 
-            if (isEmptyArray(data)) {
+            if (!data) {
                 data = await this._fetchFromApi(name);
 
                 const groupedData = data.reduce((acc, letter) => {
