@@ -5,18 +5,36 @@ import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/auth.guard';
 import { QuizLevelModule } from './modules/quiz-level/quiz-level.module';
 import { QuestionModule } from './modules/question/question.module';
+import { ConfigModule } from '@nestjs/config';
+import ormConfig from './config/orm.config';
+import { CacheModule, CacheStore } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-yet';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'admin',
-      database: 'p3tki',
-      synchronize: true,
-      logging: true,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [ormConfig],
+      expandVariables: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory: ormConfig,
+    }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: async () => {
+        const store = await redisStore({
+          socket: {
+            host: process.env.REDIS_HOST || 'localhost',
+            port: parseInt(process.env.REDIS_PORT) || 6379,
+          }
+        });
+
+        return {
+          store: store as unknown as CacheStore,
+          ttl: 3600 * 60000
+        }
+      }
     }),
     QuizModule,
     AuthModule,
