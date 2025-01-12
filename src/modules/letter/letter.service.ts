@@ -13,11 +13,31 @@ export class LetterService {
         log(`Fetching ${name} letters`);
         try {
             
-            let data = await this.cache.getCache(`${name}-letters`);
+            let data: any[] | null = await this.cache.getCache(`${name}-letters`);
 
             if (!data) {
                 data = await this._fetchFromApi(name);
-                await this.cache.setCache(`${name}-letters`, data);
+
+                const groupedData = data.reduce((acc, letter) => {
+                    const level = letter.level;
+                    if (!acc[level]) {
+                        acc[level] = [];
+                    }
+                    acc[level].push(letter);
+                    return acc;
+                }, {});
+
+                for (const level in groupedData) {
+                    await this.cache.setCache(`${name}-letters-${level}`, groupedData[level]);
+                }
+            }
+
+            if (!data) {
+                data = await this._fetchFromApi(name);
+
+                data.map((letter: any) => {
+
+                });
             }
 
             return data;

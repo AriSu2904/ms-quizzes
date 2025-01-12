@@ -8,10 +8,10 @@ export class RedisService {
 
     constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
-    async getCache(name: string) {
+    async getCache(name: string): Promise<any[] | null> {
         log(`Fetching ${name} from redis`);
 
-        const data = await this.cacheManager.get(name);
+        const data = await this.cacheManager.get(name) as any[] | null;
         log(`Success fetch data ${name} from redis`);
         return data;
     }

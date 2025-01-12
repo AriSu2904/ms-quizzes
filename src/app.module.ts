@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { QuizModule } from './modules/quiz/quiz.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/auth.guard';
-import { QuizLevelModule } from './modules/quiz-level/quiz-level.module';
 import { QuestionModule } from './modules/question/question.module';
 import { ConfigModule } from '@nestjs/config';
 import ormConfig from './config/orm.config';
@@ -38,7 +37,6 @@ import { redisStore } from 'cache-manager-redis-yet';
     }),
     QuizModule,
     AuthModule,
-    QuizLevelModule,
     QuestionModule,
   ],
   providers: [

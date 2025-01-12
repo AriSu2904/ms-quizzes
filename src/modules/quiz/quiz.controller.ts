@@ -1,25 +1,22 @@
-import { Controller, Get, Param, Headers } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { CommonResponse } from 'src/shared/CommonResponse';
-import { QuizLevelService } from '../quiz-level/quiz-level.service';
 
 @Controller('quizzes')
 export class QuizController {
-  constructor(private readonly quizService: QuizService, private readonly quizLevel: QuizLevelService) {}
+  constructor(private readonly quizService: QuizService) {}
 
-  @Get(':id')
-  async findById(@Param('id') id: string) {
-    const quiz = this.quizService.getById(id);
+  @Get(':name')
+  async getQuizzes(@Param('name') name: string) {
+    const quizzes = await this.quizService.getQuizzes(name);
 
-    return CommonResponse(quiz);
+    return CommonResponse(quizzes);
   }
 
-  @Get('levels/:name')
-  async findByName(@Param('name') name: string) {
-    const quizLevel = await this.quizLevel.getQuizzes(name);
+  @Get('level/:id')
+  async findById(@Param('id') id: string) {
+    const quiz = await this.quizService.getById(id);
 
-    console.log('quizLevel', quizLevel);
-
-    return CommonResponse(quizLevel);
+    return CommonResponse(quiz);
   }
 }
