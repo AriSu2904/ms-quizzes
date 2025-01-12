@@ -5,3 +5,7 @@ export function isEqual(val1: any, val2: any) {
 export function isEmptyArray(arr: any[]) {
     return arr.length === 0;
 }
+
+export function isEmptyObject(obj: any) {
+    return Object.keys(obj).length === 0;
+}

@@ -4,18 +4,28 @@ import { REQUEST } from '@nestjs/core';
 import { log } from 'console';
 import { firstValueFrom } from 'rxjs';
 import { RedisService } from '../redis/redis.service';
+import { isEmptyArray, isEmptyObject } from 'src/utils/conditionals';
 
 @Injectable({ scope: Scope.REQUEST })
 export class LetterService {
     constructor(private readonly http: HttpService, @Inject(REQUEST) private readonly req: any, private cache: RedisService) {}
 
-    async fetchLetterByName(name: string) {
+    async fetchLetterByName(name: string, level: number) {
         log(`Fetching ${name} letters`);
         try {
-            
-            let data: any[] | null = await this.cache.getCache(`${name}-letters`);
+            // let data = [];
+            // for(let i = 1; i <= 4; i++) {
+            //     const cacheData = await this.cache.getCache(`${name}-letters-${i}`);
+            //     if (!cacheData) {
+            //         log('Cache not found, loop stopped at level', i);
+            //         break;
+            //     }
+            //     data = [...data, ...cacheData];
+            // }
 
-            if (!data) {
+            let data = await this.cache.getCache(`${name}-letters-${level}`);
+
+            if (isEmptyArray(data)) {
                 data = await this._fetchFromApi(name);
 
                 const groupedData = data.reduce((acc, letter) => {
@@ -31,15 +41,7 @@ export class LetterService {
                     await this.cache.setCache(`${name}-letters-${level}`, groupedData[level]);
                 }
             }
-
-            if (!data) {
-                data = await this._fetchFromApi(name);
-
-                data.map((letter: any) => {
-
-                });
-            }
-
+            
             return data;
         } catch (error) {
             log(`Failed to fetch ${name} letters ${error}`);

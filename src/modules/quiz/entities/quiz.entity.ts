@@ -3,8 +3,8 @@ import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "t
 
 @Entity({ name: 'm_quiz' })
 export class Quiz {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+    @PrimaryGeneratedColumn('increment')
+    id: number;
 
     @Column({ name: 'material_parent' })
     materialParent: string;
@@ -15,7 +15,7 @@ export class Quiz {
     @Column({ nullable: true })
     score: number;
 
-    @OneToMany(() => Question, question => question.id)
+    @OneToMany(() => Question, (question) => question.quiz)
     @JoinColumn({ name: 'id' })
     questions: Question[];
 }

@@ -4,7 +4,9 @@ import { CommonResponse } from 'src/shared/CommonResponse';
 
 @Controller('quizzes')
 export class QuizController {
-  constructor(private readonly quizService: QuizService) {}
+  constructor(
+    private readonly quizService: QuizService
+  ) {}
 
   @Get(':name')
   async getQuizzes(@Param('name') name: string) {
@@ -14,7 +16,7 @@ export class QuizController {
   }
 
   @Get('level/:id')
-  async findById(@Param('id') id: string) {
+  async findById(@Param('id') id: number) {
     const quiz = await this.quizService.getById(id);
 
     return CommonResponse(quiz);
