@@ -6,7 +6,7 @@ export class QuizService {
 
   constructor(private readonly letterService: LetterService) {}
 
-  findByName(name: string, token: string) {
-    return this.letterService.fetchLetterByName(name, token);
+  findByName(name: string) {
+    return this.letterService.fetchLetterByName(name);
   }
 }

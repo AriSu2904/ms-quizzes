@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { QuizModule } from './modules/quiz/quiz.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/auth.guard';
+import { QuizLevelModule } from './modules/quiz-level/quiz-level.module';
+import { QuestionModule } from './modules/question/question.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { JwtAuthGuard } from './modules/auth/auth.guard';
     }),
     QuizModule,
     AuthModule,
+    QuizLevelModule,
+    QuestionModule,
   ],
   providers: [
     {
