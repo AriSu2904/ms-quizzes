@@ -1,9 +1,6 @@
-export class CommonResponse<T> {
-    data: T;
-    errors: any;
-  
-    constructor(data: T, errors: any = null) {
-      this.data = data;
-      this.errors = errors;
+export function CommonResponse (data: any, errors: any = null) {
+    return {
+      data,
+      errors
     }
   }

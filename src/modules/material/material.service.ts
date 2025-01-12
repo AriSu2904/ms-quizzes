@@ -1,23 +1,23 @@
 import { HttpService } from '@nestjs/axios';
-import { HttpException, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { log } from 'console';
 import { firstValueFrom } from 'rxjs';
 import { RedisService } from '../redis/redis.service';
 
-@Injectable({ scope: Scope.REQUEST })
-export class LetterService {
+@Injectable()
+export class MaterialService {
     constructor(private readonly http: HttpService, @Inject(REQUEST) private readonly req: any, private cache: RedisService) {}
 
-    async fetchLetterByName(name: string) {
-        log(`Fetching ${name} letters`);
+    async fetchMaterials(name: string) {
+        log(`Fetching ${name} material`);
         try {
             
-            let data = await this.cache.getCache(`${name}-letters`);
+            let data = await this.cache.getCache(name);
 
             if (!data) {
                 data = await this._fetchFromApi(name);
-                await this.cache.setCache(`${name}-letters`, data);
+                await this.cache.setCache(name, data);
             }
 
             return data;
@@ -29,12 +29,12 @@ export class LetterService {
     }
 
     private async _fetchFromApi(name: string) {
-        log(`Fetching ${name} letters from API`);
+        log(`Fetching ${name} material from API`);
 
         const authHeader = this.req.headers['authorization'];
         const baseUrl = process.env.MS_LEARNING;
 
-        const url = `${baseUrl}/api/v1/letters/${name}`;
+        const url = `${baseUrl}/api/v1/materials/${name}`;
         const { data: response } = await firstValueFrom(this.http.get(url, { headers: { Authorization: authHeader } }));
 
         log(`Success fetch with total data ${response.data.length}`);

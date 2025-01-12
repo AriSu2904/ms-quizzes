@@ -1,0 +1,1 @@
+export const MATERIAL = ['HIRAGANA', 'KATAKANA', 'KANJI'];

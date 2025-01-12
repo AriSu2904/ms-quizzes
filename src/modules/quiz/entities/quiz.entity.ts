@@ -1,24 +1,19 @@
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { QuizLevel } from "src/modules/quiz-level/entities/quiz-level.entity";
 import { Question } from "src/modules/question/entities/question.entities";
 
-@Entity()
+@Entity({ name: 'm_quiz' })
 export class Quiz {
     @PrimaryGeneratedColumn('uuid')
-    id: number;
-    
-    @Column()
-    level: number;
+    id: string;
 
     @OneToOne(() => QuizLevel)
+    @JoinColumn({ name: 'quiz_level_id' })
     quizLevel: QuizLevel;
-
-    @Column()
-    maxScore: number;
-
-    @Column()
-    minScore: number;
 
     @OneToMany(() => Question, question => question.id)
     questions: Question[];
+
+    @Column()
+    score: number;
 }

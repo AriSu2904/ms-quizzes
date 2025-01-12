@@ -1,12 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { LetterService } from '../letter/letter.service';
+import { Quiz } from './entities/quiz.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class QuizService {
 
-  constructor(private readonly letterService: LetterService) {}
+  constructor(
+    @InjectRepository(Quiz) private quizRepository: Repository<Quiz>,
+  ) {}
 
-  findByName(name: string) {
-    return this.letterService.fetchLetterByName(name);
+  getById(id: string) {
+    return this.quizRepository.findOne({
+      where: {
+        id
+      }
+    });
   }
 }
