@@ -4,7 +4,6 @@ import { REQUEST } from '@nestjs/core';
 import { log } from 'console';
 import { firstValueFrom } from 'rxjs';
 import { RedisService } from '../redis/redis.service';
-import { isEmptyArray, isEmptyObject } from 'src/utils/conditionals';
 
 @Injectable({ scope: Scope.REQUEST })
 export class LetterService {

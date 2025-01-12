@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import ormConfig from './config/orm.config';
 import { CacheModule, CacheStore } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
+import { HistoryModule } from './modules/history/history.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { redisStore } from 'cache-manager-redis-yet';
     QuizModule,
     AuthModule,
     QuestionModule,
+    HistoryModule,
   ],
   providers: [
     {

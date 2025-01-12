@@ -1,11 +1,15 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { CommonResponse } from 'src/shared/CommonResponse';
+import { SubmitQuiz } from './dto/SubmitQuiz';
+import { REQUEST } from '@nestjs/core';
+import { extractUserId } from 'src/utils/authDecoder';
 
 @Controller('quizzes')
 export class QuizController {
   constructor(
-    private readonly quizService: QuizService
+    private readonly quizService: QuizService,
+    @Inject(REQUEST) private readonly req: any
   ) {}
 
   @Get(':name')
@@ -20,5 +24,13 @@ export class QuizController {
     const quiz = await this.quizService.getById(id);
 
     return CommonResponse(quiz);
+  }
+
+  @Post('submit')
+  async submit( @Body() request: SubmitQuiz) {
+    const authHeader = this.req.headers['authorization'];
+    const credentials = extractUserId(authHeader);
+
+    return this.quizService.submitQuiz(request, credentials);
   }
 }

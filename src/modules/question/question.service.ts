@@ -80,4 +80,14 @@ export class QuestionService {
 
           return quest;
     }
+
+    getQuestionWithAnswer(id: number) {
+      console.log('get question with answer', id);
+
+        return this.questionRepository.find({
+          where: { quiz: { id } },
+          select: ['id', 'answer', 'level', 'questionAud', 'questionImg']
+        }
+        );
+    }
 }
