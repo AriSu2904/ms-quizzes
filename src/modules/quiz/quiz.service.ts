@@ -6,6 +6,8 @@ import { log } from 'console';
 import { MATERIAL } from 'src/constant';
 import { isEmptyArray } from 'src/utils/conditionals';
 import { QuestionService } from '../question/question.service';
+import { instanceToPlain } from 'class-transformer';
+import { shuffleArray } from 'src/utils/array';
 
 @Injectable()
 export class QuizService {
@@ -63,38 +65,27 @@ export class QuizService {
 
   }
 
-  shuffleArray(array: any[]) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-
-    return array;
-  }
-
   async getById(id: number) {
-    const quizLevel = await this.quizRepository.findOne({
-      where: {
-        id
-      },
-      relations: ['questions']
-    });
+    let quiz: any;
+    let questions: any;
 
-    if(!quizLevel) {
+    [quiz, questions] = await Promise.all([
+      this.quizRepository.findOne({ where: { id } }),
+      this.questionService.getQuestion(id)
+    ]);
+
+    if(!quiz) {
       throw new HttpException(`Quiz level with id ${id} not found`, 404);
     }
 
-    if(isEmptyArray(quizLevel.questions)) {
-      const questions = await this.questionService.generateQuestion(quizLevel);
-
-      quizLevel.questions = questions;
-      await this.quizRepository.save(quizLevel);
+    if(isEmptyArray(questions)) {
+      questions = await this.questionService.generateQuestion(quiz);
     }
 
-    quizLevel.questions = this.shuffleArray(quizLevel.questions);
-    
-    return quizLevel;
-  }
+    quiz.questions = shuffleArray(questions);
+    quiz.total = quiz.questions.length;
 
+    return instanceToPlain(quiz);
+  }
 
 }

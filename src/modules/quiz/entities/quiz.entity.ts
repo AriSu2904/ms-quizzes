@@ -1,5 +1,4 @@
-import { Question } from "src/modules/question/entities/question.entities";
-import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: 'm_quiz' })
 export class Quiz {
@@ -15,7 +14,4 @@ export class Quiz {
     @Column({ nullable: true })
     score: number;
 
-    @OneToMany(() => Question, (question) => question.quiz)
-    @JoinColumn({ name: 'id' })
-    questions: Question[];
 }

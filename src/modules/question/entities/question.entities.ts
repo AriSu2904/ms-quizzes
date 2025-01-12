@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { Quiz } from "src/modules/quiz/entities/quiz.entity";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
@@ -21,7 +22,8 @@ export class Question {
     @Column('simple-array')
     options: string[];
 
-    @ManyToOne(() => Quiz, (quiz) => quiz.questions)
+    @ManyToOne(() => Quiz, (quiz) => quiz.id)
     @JoinColumn({ name: 'quiz_id' })
+    @Exclude({ toPlainOnly: true })
     quiz: Quiz;
 }

@@ -4,6 +4,8 @@ import { Quiz } from '../quiz/entities/quiz.entity';
 import { Question } from './entities/question.entities';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { log } from 'console';
+import { shuffleArray } from 'src/utils/array';
 
 @Injectable()
 export class QuestionService {
@@ -12,7 +14,20 @@ export class QuestionService {
         @InjectRepository(Question) private readonly questionRepository: Repository<Question>
       ) {}
 
-      generateOptions(letter: any, letters: any) {
+    async getQuestion(id: number) {
+        const questions = await this.questionRepository.find({ where: { quiz: { id } } });
+
+       const modifiedQuestions = questions.map((question: any) => {
+          const options = question.options;
+           question.options = shuffleArray(options);
+
+           return question;
+       });
+
+       return modifiedQuestions;
+    }
+
+    generateOptions(letter: any, letters: any) {
         const correctAnswer = letter.romaji;
         const sameLevelLetters = letters.filter((l: any) => l.level === letter.level && l.romaji !== correctAnswer);
     
@@ -37,7 +52,7 @@ export class QuestionService {
         return options;
     }
 
-      async generateQuestion(quiz: Quiz) {
+    async generateQuestion(quiz: Quiz) {
         const parent = quiz.materialParent;
         const level = quiz.level;
 
@@ -59,6 +74,10 @@ export class QuestionService {
             return question;  
           });
 
-          return this.questionRepository.save(questions);
-      }
+          const quest = await this.questionRepository.save(questions);
+
+          log('success generate questions');
+
+          return quest;
+    }
 }
