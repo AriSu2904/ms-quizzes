@@ -12,7 +12,7 @@ export class QuizController {
     @Inject(REQUEST) private readonly req: any
   ) {}
 
-  @Get(':name')
+  @Get('detail/:name')
   async getQuizzes(@Param('name') name: string) {
     const quizzes = await this.quizService.getQuizzes(name);
 
@@ -33,4 +33,22 @@ export class QuizController {
 
     return this.quizService.submitQuiz(request, credentials);
   }
+
+  @Get('history')
+  async getHistory() {
+    const authHeader = this.req.headers['authorization'];
+    const credentials = extractUserId(authHeader);
+  
+    return this.quizService.histories(credentials);
+   }
+
+  @Get('tracker')
+  async getTracker() {
+    const authHeader = this.req.headers['authorization'];
+    const credentials = extractUserId(authHeader);
+  
+    return this.quizService.trackers(credentials);
+  }
+
+  
 }

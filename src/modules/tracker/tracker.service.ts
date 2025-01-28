@@ -1,21 +1,50 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTracker } from './dto/createTracker';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Tracker } from './entities/tracker.entity';
+import { Repository } from 'typeorm';
+import { log } from 'console';
+import { TrackerResponse } from './dto/trackerResponse';
+import { CommonResponse } from 'src/shared/CommonResponse';
 
 @Injectable()
 export class TrackerService {
-  create(createTrackerDto: CreateTracker) {
-    return 'This action adds a new tracker';
+    constructor(
+      @InjectRepository(Tracker) private trackerRepository: Repository<Tracker>,
+    ) {}
+
+  async create(createTracker: Tracker) {
+    let existData = await this.trackerRepository.findOne(
+      { where: {
+        userId: createTracker.userId,
+      },
+      relations: ['history']
+    });
+
+    if(existData) {
+      log('found existing data');
+      createTracker.id = existData.id;
+    }
+
+    return this.trackerRepository.save(createTracker);
   }
 
-  findAll() {
-    return `This action returns all tracker`;
-  }
+  async get(userId: string) {
+    const lastTracker = await this.trackerRepository.findOne({where: { userId }, relations: ['history', 'history.quiz', 'history.scores']});
 
-  findOne(id: number) {
-    return `This action returns a #${id} tracker`;
-  }
-  
-  remove(id: number) {
-    return `This action removes a #${id} tracker`;
+    const highestScore = lastTracker.history.scores.reduce((max, score) => {
+      return score.score > max ? score.score : max;
+  }, 0);
+
+    const response: TrackerResponse = {
+      id: lastTracker.id,
+      userId: lastTracker.userId,
+      totalAttempt: lastTracker.history.attempt,
+      quizId: lastTracker.history.quiz.id,
+      quizLevel: lastTracker.history.quiz.level,
+      materialParent: (lastTracker.history.quiz.materialParent).toUpperCase(),
+      highestScore: highestScore
+    }
+
+    return CommonResponse(response);
   }
 }

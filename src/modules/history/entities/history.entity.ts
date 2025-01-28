@@ -1,5 +1,6 @@
 import { Quiz } from "src/modules/quiz/entities/quiz.entity";
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Score } from "src/modules/scores/entities/scores.entity";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: 'm_history' })
 export class History {
@@ -16,6 +17,6 @@ export class History {
     @Column({ default: 0 })
     attempt: number;
 
-    @Column('float', { name: 'last_score', nullable: true })
-    lastScore: number;
+    @OneToMany(() => Score, scores => scores.history)
+    scores: Score[];
 }

@@ -13,5 +13,4 @@ export class Tracker {
     @OneToOne(() => History)
     @JoinColumn()
     history: History;
-
 }

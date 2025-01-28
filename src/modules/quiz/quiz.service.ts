@@ -11,6 +11,10 @@ import { shuffleArray } from 'src/utils/array';
 import { SubmitQuiz } from './dto/SubmitQuiz';
 import { History } from '../history/entities/history.entity';
 import { HistoryService } from '../history/history.service';
+import { Tracker } from '../tracker/entities/tracker.entity';
+import { TrackerService } from '../tracker/tracker.service';
+import { Score } from '../scores/entities/scores.entity';
+import { ScoreService } from '../scores/scores.service';
 
 @Injectable()
 export class QuizService {
@@ -18,7 +22,9 @@ export class QuizService {
   constructor(
     @InjectRepository(Quiz) private quizRepository: Repository<Quiz>,
     private readonly questionService: QuestionService,
-    private readonly historyService: HistoryService
+    private readonly historyService: HistoryService,
+    private readonly trackerService: TrackerService,
+    private readonly scoreService: ScoreService
   ) {}
 
   private constructLevel(name: string) {
@@ -139,10 +145,39 @@ export class QuizService {
     const newHistory = new History();
     newHistory.userId = credentials;
     newHistory.quiz = quizLevel;
-    newHistory.lastScore = finalScores;
     newHistory.attempt = 1;
 
-    return this.historyService.upsert(newHistory);
+    const history = await this.historyService.upsert(newHistory);
+
+    const newScore = new Score();
+    newScore.userId = credentials;
+    newScore.history = history;
+    newScore.score = finalScores;
+
+    await this.scoreService.save(newScore);
+
+    const newTracker = new Tracker();
+    newTracker.userId = credentials;
+    newTracker.history = history;
+    
+    await this.trackerService.create(newTracker);
+
+    return {
+      ...history,
+      score: newScore.score
+    };
+  }
+
+  async histories(credentials: string) {
+    const res = await this.historyService.findAll(credentials);
+
+    return res;
+  }
+
+  async trackers(credentials: string) {
+    const res = await this.trackerService.get(credentials);
+
+    return res;
   }
 
 }
