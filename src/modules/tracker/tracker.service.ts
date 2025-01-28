@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tracker } from './entities/tracker.entity';
 import { Repository } from 'typeorm';
@@ -30,6 +30,12 @@ export class TrackerService {
 
   async get(userId: string) {
     const lastTracker = await this.trackerRepository.findOne({where: { userId }, relations: ['history', 'history.quiz', 'history.scores']});
+
+    if(!lastTracker) {
+      Logger.error('Tracker not found for user: ' + userId);
+      
+      return CommonResponse(null, 'Tracker not found');
+    }
 
     const highestScore = lastTracker.history.scores.reduce((max, score) => {
       return score.score > max ? score.score : max;
