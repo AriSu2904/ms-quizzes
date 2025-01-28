@@ -30,7 +30,7 @@ export class QuizService {
   private constructLevel(name: string) {
     return Array.from({ length: 4 }, (_, i) => ({
       level: i + 1,
-      parent: name,
+      parent: name.toUpperCase(),
       score: 10
     }));
   }
