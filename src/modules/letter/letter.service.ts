@@ -4,6 +4,7 @@ import { REQUEST } from '@nestjs/core';
 import { log } from 'console';
 import { firstValueFrom } from 'rxjs';
 import { RedisService } from '../redis/redis.service';
+import { isEqual } from 'src/utils/conditionals';
 
 @Injectable({ scope: Scope.REQUEST })
 export class LetterService {
@@ -41,7 +42,7 @@ export class LetterService {
                 }
             }
             
-            return data.filter((letter: any) => letter.level === level);
+            return data.filter((letter: any) => isEqual(letter.level, level));
         } catch (error) {
             log(`Failed to fetch ${name} letters ${error}`);
 

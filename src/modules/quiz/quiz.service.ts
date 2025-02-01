@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { log } from 'console';
 import { MATERIAL } from 'src/constant';
-import { isEmptyArray } from 'src/utils/conditionals';
+import { isEmptyArray, isEqual } from 'src/utils/conditionals';
 import { QuestionService } from '../question/question.service';
 import { instanceToPlain } from 'class-transformer';
 import { shuffleArray } from 'src/utils/array';
@@ -114,7 +114,7 @@ export class QuizService {
     let correctAns = 0;
 
     body.answers.forEach(answer => {
-      const question = questions.find((q: { id: string; }) => q.id === answer.questionId);
+      const question = questions.find((q: { id: string; }) => isEqual(q.id, answer.questionId));
 
       if(!question) {
         throw new HttpException(`Question with id ${answer.questionId} not found`, 404);

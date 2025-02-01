@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { log } from 'console';
 import { shuffleArray } from 'src/utils/array';
+import { isEqual } from 'src/utils/conditionals';
 
 @Injectable()
 export class QuestionService {
@@ -29,7 +30,7 @@ export class QuestionService {
 
     generateOptions(letter: any, letters: any) {
         const correctAnswer = letter.romaji;
-        const sameLevelLetters = letters.filter((l: any) => l.level === letter.level && l.romaji !== correctAnswer);
+        const sameLevelLetters = letters.filter((l: any) => isEqual(l.level, letter.level) && l.romaji !== correctAnswer);
     
         // Shuffle the sameLevelLetters array
         for (let i = sameLevelLetters.length - 1; i > 0; i--) {
