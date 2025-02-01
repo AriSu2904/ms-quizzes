@@ -14,7 +14,7 @@ export class QuestionService {
         @InjectRepository(Question) private readonly questionRepository: Repository<Question>
       ) {}
 
-    async getQuestion(id: number) {
+    async getQuestion(id: string) {
         const questions = await this.questionRepository.find({ where: { quiz: { id } } });
 
        const modifiedQuestions = questions.map((question: any) => {
@@ -60,13 +60,15 @@ export class QuestionService {
 
         const questions = letters.map((letter) => {
           if(letter.level !== level) {
-            throw new HttpException(`Letter level ${letter.level} does not match quiz level ${level}`, 404);
+            console.error('Letter level is not the same as quiz level');
           }
 
             const question = new Question();
             question.questionImg = letter.imgUri;
             question.questionAud = letter.audioUri;
             question.answer = letter.romaji;
+            question.questionImgSecond = letter.secondImgUri;
+            question.questionImgDetail = letter.secondImgDetailUri;
             question.level = letter.level;
             question.options = this.generateOptions(letter, letters)
             question.quiz = quiz;
@@ -76,14 +78,12 @@ export class QuestionService {
 
           const quest = await this.questionRepository.save(questions);
 
-          log('success generate questions');
+          log(`success generate questions for level ${level} with total data ${quest.length}`);
 
           return quest;
     }
 
-    getQuestionWithAnswer(id: number) {
-      console.log('get question with answer', id);
-
+    getQuestionWithAnswer(id: string) {
         return this.questionRepository.find({
           where: { quiz: { id } },
           select: ['id', 'answer', 'level', 'questionAud', 'questionImg']

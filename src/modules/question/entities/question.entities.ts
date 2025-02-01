@@ -13,6 +13,12 @@ export class Question {
     @Column({ name: 'question_aud' })
     questionAud: string;
 
+    @Column({ name: 'question_img_second' })
+    questionImgSecond: string;
+
+    @Column({ name: 'question_img_detail' })
+    questionImgDetail: string;
+
     @Column()
     answer: string;
 

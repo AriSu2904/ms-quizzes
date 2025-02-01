@@ -3,7 +3,7 @@ version: '3.8'
 services:
   ms-quizzes:
     build: .
-    container_name: ms-quizzes-app
+    container_name: quizzes-cnt
     ports:
       - "3000:3000"
     environment:

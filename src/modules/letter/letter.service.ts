@@ -41,7 +41,7 @@ export class LetterService {
                 }
             }
             
-            return data;
+            return data.filter((letter: any) => letter.level === level);
         } catch (error) {
             log(`Failed to fetch ${name} letters ${error}`);
 

@@ -32,7 +32,7 @@ import { HistoryModule } from './modules/history/history.module';
 
         return {
           store: store as unknown as CacheStore,
-          ttl: 3600 * 60000
+          ttl: 2 * 3600
         }
       }
     }),

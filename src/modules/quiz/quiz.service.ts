@@ -28,7 +28,7 @@ export class QuizService {
   ) {}
 
   private constructLevel(name: string) {
-    return Array.from({ length: 4 }, (_, i) => ({
+    return Array.from({ length: 3 }, (_, i) => ({
       level: i + 1,
       parent: name.toUpperCase(),
       score: 10
@@ -58,7 +58,7 @@ export class QuizService {
 
     let quizzes = await this.quizRepository.find({
       where: {
-        materialParent: name
+        materialParent: name.toUpperCase()
       }
     });
 
@@ -75,7 +75,11 @@ export class QuizService {
 
   }
 
-  async getById(id: number) {
+  async getByNameAndLevel(name: string, id: string) {
+    if(name !== 'hiragana' && name !== 'katakana') {
+      throw new HttpException(`Unknown material ${name}`, 404);
+    }
+
     let quiz: any;
     let questions: any;
 

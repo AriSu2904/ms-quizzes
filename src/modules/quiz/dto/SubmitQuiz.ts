@@ -1,5 +1,5 @@
 export interface SubmitQuiz {
-    quizId: number; // Quiz Id incerement 1 2 3 4 5 6 7 8
+    quizId: string; // Quiz Id UUID
     answers: Answer[];
     materialParent: string;
     level: number;

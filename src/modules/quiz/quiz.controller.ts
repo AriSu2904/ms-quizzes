@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Query } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { CommonResponse } from 'src/shared/CommonResponse';
 import { SubmitQuiz } from './dto/SubmitQuiz';
@@ -19,9 +19,9 @@ export class QuizController {
     return CommonResponse(quizzes);
   }
 
-  @Get('level/:id')
-  async findById(@Param('id') id: number) {
-    const quiz = await this.quizService.getById(id);
+  @Get('questions/:name')
+  async findById(@Param('name') name: string, @Query('id') id: string) {
+    const quiz = await this.quizService.getByNameAndLevel(name, id);
 
     return CommonResponse(quiz);
   }
