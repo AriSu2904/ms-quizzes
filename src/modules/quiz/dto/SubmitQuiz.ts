@@ -3,6 +3,7 @@ export interface SubmitQuiz {
     answers: Answer[];
     materialParent: string;
     level: number;
+    section: string;
     }
 
 export interface Answer {

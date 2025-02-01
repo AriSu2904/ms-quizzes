@@ -5,6 +5,7 @@ import { History } from './entities/history.entity';
 import { log } from 'console';
 import { HistoryResponse } from './dto/historyResponse';
 import { CommonResponse } from 'src/shared/CommonResponse';
+import { Quiz } from '../quiz/entities/quiz.entity';
 
 @Injectable()
 export class HistoryService {
@@ -22,6 +23,8 @@ export class HistoryService {
         totalAttempt: history.attempt,
         quizId: history.quiz.id,
         quizLevel: history.quiz.level,
+        section: history.section,
+        inquiryUsed: history.inquiryUsed,
         materialParent: history.quiz.materialParent,
         scores: history.scores.map(score => score.score)
       }
@@ -30,21 +33,23 @@ export class HistoryService {
     return CommonResponse(result)
   }
 
-  findOne(id: string, credentials: string) {
-    return this.historyRepository.findOne({ where: { id: id, userId: credentials } });
+  async findHistorySection(credentials: string, quiz: Quiz, section: string) {
+    return this.historyRepository.find({ where: { userId: credentials, quiz, section }, relations: ['quiz', 'scores'] });
   }
 
   async upsert(history: History): Promise<History> {
     let existData = await this.historyRepository.findOne(
       { where: {
         userId: history.userId,
-        quiz: history.quiz
+        quiz: history.quiz,
+        section: history.section,
       } 
     });
 
     if(existData) {
       log('found existing data');
       history.id = existData.id;
+      history.inquiryUsed = true;
       history.attempt = existData.attempt + 1;
     }
 

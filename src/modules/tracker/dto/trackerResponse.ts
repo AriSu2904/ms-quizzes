@@ -4,7 +4,8 @@ export interface TrackerResponse {
     totalAttempt: number;
     quizId: string;
     quizLevel: number;
+    section: string;
     materialParent: string;
     highestScore: number;
-
+    currentScore: number;
 }

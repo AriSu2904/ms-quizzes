@@ -4,6 +4,7 @@ import { CommonResponse } from 'src/shared/CommonResponse';
 import { SubmitQuiz } from './dto/SubmitQuiz';
 import { REQUEST } from '@nestjs/core';
 import { extractUserId } from 'src/utils/authDecoder';
+import { InquiryQuiz } from './dto/inquiryQuiz';
 
 @Controller('quizzes')
 export class QuizController {
@@ -24,6 +25,14 @@ export class QuizController {
     const quiz = await this.quizService.getByNameAndLevel(name, id);
 
     return CommonResponse(quiz);
+  }
+
+  @Post('inquiry')
+  async inquiry( @Body() request: InquiryQuiz) {
+    const authHeader = this.req.headers['authorization'];
+    const credentials = extractUserId(authHeader);
+
+    return this.quizService.inquiryQuiz(request, credentials);
   }
 
   @Post('submit')

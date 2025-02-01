@@ -25,6 +25,9 @@ export class Question {
     @Column()
     level: number;
 
+    @Column()
+    section: string;
+
     @Column('simple-array')
     options: string[];
 

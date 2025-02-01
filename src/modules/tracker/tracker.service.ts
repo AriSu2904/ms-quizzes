@@ -8,19 +8,20 @@ import { CommonResponse } from 'src/shared/CommonResponse';
 
 @Injectable()
 export class TrackerService {
-    constructor(
-      @InjectRepository(Tracker) private trackerRepository: Repository<Tracker>,
-    ) {}
+  constructor(
+    @InjectRepository(Tracker) private trackerRepository: Repository<Tracker>,
+  ) { }
 
   async create(createTracker: Tracker) {
     let existData = await this.trackerRepository.findOne(
-      { where: {
-        userId: createTracker.userId,
-      },
-      relations: ['history']
-    });
+      {
+        where: {
+          userId: createTracker.userId,
+        },
+        relations: ['history']
+      });
 
-    if(existData) {
+    if (existData) {
       log('found existing data');
       createTracker.id = existData.id;
     }
@@ -29,26 +30,33 @@ export class TrackerService {
   }
 
   async get(userId: string) {
-    const lastTracker = await this.trackerRepository.findOne({where: { userId }, relations: ['history', 'history.quiz', 'history.scores']});
+    const lastTracker = await this.trackerRepository.findOne({
+      where: { userId },
+      relations: ['history', 'history.quiz', 'history.scores']
+    });
 
-    if(!lastTracker) {
+    if (!lastTracker) {
       Logger.error('Tracker not found for user: ' + userId);
-      
+
       return CommonResponse(null, 'Tracker not found');
     }
 
     const highestScore = lastTracker.history.scores.reduce((max, score) => {
       return score.score > max ? score.score : max;
-  }, 0);
+    }, 0);
+    const scoreLength = lastTracker.history.scores.length;
+    const scores = lastTracker.history.scores;
 
     const response: TrackerResponse = {
       id: lastTracker.id,
       userId: lastTracker.userId,
       totalAttempt: lastTracker.history.attempt,
       quizId: lastTracker.history.quiz.id,
+      section: lastTracker.history.section,
       quizLevel: lastTracker.history.quiz.level,
       materialParent: (lastTracker.history.quiz.materialParent).toUpperCase(),
-      highestScore: highestScore
+      highestScore,
+      currentScore: scores[scoreLength - 1].score
     }
 
     return CommonResponse(response);

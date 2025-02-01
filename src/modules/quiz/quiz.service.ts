@@ -1,10 +1,10 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { Quiz } from './entities/quiz.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { log } from 'console';
 import { MATERIAL } from 'src/constant';
-import { isEmptyArray, isEqual } from 'src/utils/conditionals';
+import { isEmptyArray, isEmptyObject, isEqual } from 'src/utils/conditionals';
 import { QuestionService } from '../question/question.service';
 import { instanceToPlain } from 'class-transformer';
 import { shuffleArray } from 'src/utils/array';
@@ -15,6 +15,8 @@ import { Tracker } from '../tracker/entities/tracker.entity';
 import { TrackerService } from '../tracker/tracker.service';
 import { Score } from '../scores/entities/scores.entity';
 import { ScoreService } from '../scores/scores.service';
+import { Question } from '../question/entities/question.entities';
+import { InquiryQuiz } from './dto/inquiryQuiz';
 
 @Injectable()
 export class QuizService {
@@ -69,19 +71,13 @@ export class QuizService {
     return quizzes;
   }
 
-  async generateQuiestion(quizLevel: Quiz) {
-    log('generate questions for quiz level ', quizLevel.level);
-
-
-  }
-
   async getByNameAndLevel(name: string, id: string) {
     if(name !== 'hiragana' && name !== 'katakana') {
       throw new HttpException(`Unknown material ${name}`, 404);
     }
 
     let quiz: any;
-    let questions: any;
+    let questions: Question[];
 
     [quiz, questions] = await Promise.all([
       this.quizRepository.findOne({ where: { id } }),
@@ -96,10 +92,13 @@ export class QuizService {
       questions = await this.questionService.generateQuestion(quiz);
     }
 
-    quiz.questions = shuffleArray(questions);
-    quiz.total = quiz.questions.length;
+    const questionObject = {
+      ...quiz,
+      questions: shuffleArray(questions),
+      total: questions.length
+    }
 
-    return instanceToPlain(quiz);
+    return instanceToPlain(questionObject);
   }
 
   checkScore(body: SubmitQuiz, questions: any, quizLevel: any) {
@@ -114,7 +113,7 @@ export class QuizService {
     let correctAns = 0;
 
     body.answers.forEach(answer => {
-      const question = questions.find((q: { id: string; }) => isEqual(q.id, answer.questionId));
+      const question = questions.find((q: { id: string; }) => isEqual(q.id,answer.questionId));
 
       if(!question) {
         throw new HttpException(`Question with id ${answer.questionId} not found`, 404);
@@ -133,9 +132,40 @@ export class QuizService {
     return parseFloat(fixedScore.toFixed(2));
   }
 
+  async inquiryQuiz(body: InquiryQuiz, credentials: string) {
+    const [questions, quizLevel] = await Promise.all([
+      this.questionService.getQuestionWithAnswer(body.quizId, body.section),
+      this.quizRepository.findOne({ where: { id: body.quizId } })
+    ]);
+
+    log(`question found for session ${body.section} `, questions);
+
+    if(!questions || !quizLevel) {
+      throw new HttpException(`Quiz with id ${body.quizId} not found`, 404);
+    }
+
+    log(`${credentials} inquiry quiz ${body.quizId} with section ${body.section}`);
+
+    const history = await this.historyService.findHistorySection(credentials, quizLevel, body.section);
+
+    if(isEmptyObject(history)) {
+      log('no history found for this quiz ', { quizId: body.quizId, userId: credentials, section: body.section });
+
+      await this.historyAndTracker(credentials, quizLevel, body.section, 0, 0);
+
+      return {
+        successInquiry: true,
+      }
+    }
+
+    return {
+      successInquiry: false,
+    }
+  }
+
   async submitQuiz(body: SubmitQuiz, credentials: string) {
     const [questions, quizLevel] = await Promise.all([
-      this.questionService.getQuestionWithAnswer(body.quizId),
+      this.questionService.getQuestionWithAnswer(body.quizId, body.section),
       this.quizRepository.findOne({ where: { id: body.quizId } })
     ]);
 
@@ -146,10 +176,15 @@ export class QuizService {
     const finalScores = this.checkScore(body, questions, quizLevel);
     log(`${credentials} submit quiz ${body.quizId} and got total score ${finalScores}`);
 
+    return this.historyAndTracker(credentials, quizLevel, body.section, finalScores, 1);
+  }
+
+  private async historyAndTracker(credentials: string, quizLevel: Quiz, section: string, finalScores: number, attempt: number) {
     const newHistory = new History();
     newHistory.userId = credentials;
     newHistory.quiz = quizLevel;
-    newHistory.attempt = 1;
+    newHistory.section = section;
+    newHistory.attempt = attempt;
 
     const history = await this.historyService.upsert(newHistory);
 
@@ -163,7 +198,7 @@ export class QuizService {
     const newTracker = new Tracker();
     newTracker.userId = credentials;
     newTracker.history = history;
-    
+
     await this.trackerService.create(newTracker);
 
     return {
