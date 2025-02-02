@@ -10,6 +10,9 @@ export class Quiz {
 
     @Column()
     level: number;
+    
+    @Column()
+    type: string;
 
     @Column({ nullable: true })
     score: number;

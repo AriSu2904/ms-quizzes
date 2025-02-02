@@ -2,7 +2,7 @@ import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { Quiz } from './entities/quiz.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { log } from 'console';
+import { group, log } from 'console';
 import { MATERIAL } from 'src/constant';
 import { isEmptyArray, isEmptyObject, isEqual } from 'src/utils/conditionals';
 import { QuestionService } from '../question/question.service';
@@ -30,9 +30,12 @@ export class QuizService {
   ) {}
 
   private constructLevel(name: string) {
+    const hira = ["Main Letters", "Dakuten(゛) & Handakuten(゜)", "Yōon (拗音)"];
+
     return Array.from({ length: 3 }, (_, i) => ({
       level: i + 1,
       parent: name.toUpperCase(),
+      type: hira[i],
       score: 10
     }));
   }
@@ -49,6 +52,7 @@ export class QuizService {
     const quizLevels = levels.map(level => ({
       level: level.level,
       materialParent: level.parent,
+      type: level.type,
       score: level.score
     }));
 
@@ -92,9 +96,20 @@ export class QuizService {
       questions = await this.questionService.generateQuestion(quiz);
     }
 
+    const groupedQuestions = questions.reduce((acc: Record<string, Question[]>, question) => {
+      acc[question.section] = [...(acc[question.section] || []), question];
+      return acc;
+    }, {});
+
+    const groupedQuest = Object.keys(groupedQuestions).map(section => ({
+      section,
+      groupedQuestion: shuffleArray(groupedQuestions[section]),
+      totalPerSection: groupedQuestions[section].length
+    }))
+
     const questionObject = {
       ...quiz,
-      questions: shuffleArray(questions),
+      questions: groupedQuest,
       total: questions.length
     }
 
