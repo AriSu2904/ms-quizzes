@@ -51,6 +51,14 @@ export class QuizController {
     return this.quizService.histories(credentials);
    }
 
+   @Get('history/quiz/:id')
+   async getHistoryQuiz(@Param('id') id: string) {
+     const authHeader = this.req.headers['authorization'];
+     const credentials = extractUserId(authHeader);
+   
+     return this.quizService.getHistoryByQuizId(credentials, id);
+    }
+
   @Get('tracker')
   async getTracker() {
     const authHeader = this.req.headers['authorization'];

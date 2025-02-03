@@ -234,4 +234,7 @@ export class QuizService {
     return res;
   }
 
+  async getHistoryByQuizId(credential: string, quizId: string) {
+    return this.historyService.findHistoryByQuizId(credential, quizId);
+  }
 }

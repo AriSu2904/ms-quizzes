@@ -37,16 +37,37 @@ export class HistoryService {
     return this.historyRepository.find({ where: { userId: credentials, quiz, section }, relations: ['quiz', 'scores'] });
   }
 
-  async upsert(history: History): Promise<History> {
-    let existData = await this.historyRepository.findOne(
-      { where: {
+  async findHistoryByQuizId(credential: string, quizId: string) {
+    const histories = await this.historyRepository.find({ where: { userId: credential, quiz: { id: quizId } }, relations: ['quiz', 'scores'] });
+
+    const result = histories.map(history => {
+      return {
+        id: history.id,
         userId: history.userId,
-        quiz: history.quiz,
+        totalAttempt: history.attempt,
+        quizId: history.quiz.id,
+        quizLevel: history.quiz.level,
         section: history.section,
-      } 
+        inquiryUsed: history.inquiryUsed,
+        materialParent: history.quiz.materialParent,
+        scores: history.scores.map(score => score.score)
+      }
     });
 
-    if(existData) {
+    return CommonResponse(result)
+  }
+
+  async upsert(history: History): Promise<History> {
+    let existData = await this.historyRepository.findOne(
+      {
+        where: {
+          userId: history.userId,
+          quiz: history.quiz,
+          section: history.section,
+        }
+      });
+
+    if (existData) {
       log('found existing data');
       history.id = existData.id;
       history.inquiryUsed = true;
