@@ -8,7 +8,7 @@ import { Tracker } from "src/modules/tracker/entities/tracker.entity";
 
 export default registerAs('orm.config', (): TypeOrmModuleOptions => ({
     type: 'postgres',
-    host: 'localhost',
+    host: process.env.POSTGRES_HOST || 'localhost',
     port: 5432,
     username: 'postgres',
     password: 'admin',

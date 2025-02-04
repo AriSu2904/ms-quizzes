@@ -32,7 +32,7 @@ export class TrackerService {
   async get(userId: string) {
     const lastTracker = await this.trackerRepository.findOne({
       where: { userId },
-      relations: ['history', 'history.quiz', 'history.scores']
+      relations: ['history', 'history.quiz', 'history.scores', ]
     });
 
     if (!lastTracker) {
@@ -55,6 +55,7 @@ export class TrackerService {
       section: lastTracker.history.section,
       quizLevel: lastTracker.history.quiz.level,
       materialParent: (lastTracker.history.quiz.materialParent).toUpperCase(),
+      inquiryUsed: lastTracker.history.inquiryUsed,
       highestScore,
       currentScore: scores[scoreLength - 1].score
     }

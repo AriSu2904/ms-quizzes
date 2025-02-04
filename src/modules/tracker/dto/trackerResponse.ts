@@ -8,4 +8,5 @@ export interface TrackerResponse {
     materialParent: string;
     highestScore: number;
     currentScore: number;
+    inquiryUsed: boolean;
 }
